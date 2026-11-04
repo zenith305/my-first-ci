@@ -8,16 +8,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Flyway
-        uses: red-gate/setup-flyway@v3
-        with:
-          edition: community
-          i-agree-to-the-eula: true
-
-      - name: Run Flyway Migrate
-        uses: red-gate/flyway-actions/migrations/deploy@v2
-        with:
-          target-url: ${{ secrets.DB_URL }}
-          target-user: ${{ secrets.DB_USER }}
-          target-password: ${{ secrets.DB_PASSWORD }}
-          working-directory: migrations
+      - name: Run Flyway in Docker
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/migrations:/flyway/sql \
+            flyway/flyway:latest \
+            -url="${{ secrets.DB_URL }}" \
+            -user="${{ secrets.DB_USER }}" \
+            -password="${{ secrets.DB_PASSWORD }}" \
+            migrate
