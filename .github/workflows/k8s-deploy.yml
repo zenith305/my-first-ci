@@ -1,0 +1,42 @@
+name: Deploy to Kubernetes with Helm
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/my-first-ci:k8s-latest
+
+      # Настройка доступа к кластеру Kubernetes
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 --decode > ~/.kube/config
+
+      # Установка Helm (инструмент управления пакетами для K8s)
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.12.0'
+
+      # Развертывание приложения через Helm
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install my-app ./helm-chart \
+            --namespace default \
+            --set image.repository=${{ secrets.DOCKER_USERNAME }}/my-first-ci \
+            --set image.tag=k8s-latest
