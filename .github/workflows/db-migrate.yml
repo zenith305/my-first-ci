@@ -1,11 +1,19 @@
 name: Database Migration
 on: [push]
+
 jobs:
   migrate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Flyway
+        uses: red-gate/setup-flyway@v3
+        with:
+          edition: community
+          i-agree-to-the-eula: true
+
       - name: Run Flyway Migrate
         uses: red-gate/flyway-actions/migrations/deploy@v2
         with:
