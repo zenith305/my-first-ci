@@ -1,0 +1,32 @@
+name: Multi-stage Pipeline
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Run Linter
+        run: echo "Проверка кода (Lint) пройдена"
+
+  test:
+    needs: lint # Этот этап начнется только после успешного Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Tests
+        run: echo "Юнит-тесты пройдены"
+
+  build:
+    needs: test # Этот этап начнется только после успешного Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Application
+        run: echo "Сборка приложения завершена"
+
+  deploy:
+    needs: build # Этот этап начнется только после успешного Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: echo "Развертывание выполнено (имитация)"
