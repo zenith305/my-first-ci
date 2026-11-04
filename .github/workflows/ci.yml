@@ -11,8 +11,12 @@ jobs:
         run: echo "Hello, CI is working!"
         
       - name: Notify Slack
-        uses: 8398a7/action-slack@v3
-        if: always() # Отправляет уведомление даже если предыдущий шаг упал
+        uses: slackapi/slack-github-action@v1.24.0
+        if: always()
         with:
-          status: ${{ job.status }}
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          payload: |
+            {
+              "text": "Сборка завершилась со статусом: ${{ job.status }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
