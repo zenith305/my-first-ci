@@ -5,6 +5,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+        
       - name: Say hello
         run: echo "Hello, CI is working!"
+        
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        if: always() # Отправляет уведомление даже если предыдущий шаг упал
+        with:
+          status: ${{ job.status }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
